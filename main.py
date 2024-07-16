@@ -1,7 +1,23 @@
 import streamlit as st 
 from streamlit_option_menu import option_menu
 
-st.title('Lightning App')
+# st.title('Lightning App')
+
+
+# st.sidebar.success("Select a demo above.")
+
+col1, col2 = st.columns(2)
+
+with col1: 
+    st.write("# Welcome to PaleoIgnition! 👋")
+    # st.markdown(
+    #     """
+    #     PaleoIgnition is an app built for paleofire researchers to use
+    
+    #     """)
+
+with col2: 
+    st.image("paleoignition_logo_bg_removed_upscaed_2-fotor-bg-remover.png", width=600)
 
 # with st.sidebar:
 #   selected = option_menu(
