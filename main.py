@@ -17,7 +17,7 @@ with col1:
     #     """)
 
 with col2: 
-    st.image("paleoignition_logo_bg_removed_upscaed_2-fotor-bg-remover.png", width=600)
+    st.image("paleoignition_logo_white.png", width=600)
 
 # with st.sidebar:
 #   selected = option_menu(
