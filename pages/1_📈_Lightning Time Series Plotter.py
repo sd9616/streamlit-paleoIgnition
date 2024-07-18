@@ -293,7 +293,7 @@ def plot_time_series(chosen_dataset):
     download_url = create_download_link(zipped_buffer, 'csv files', 'Download CSV files')
     st.markdown(download_url, unsafe_allow_html=True)
 
-    img_download_url = create_download_link(img_buffer, 'plot.png', 'Download graph', file_type='image/png')
+    img_download_url = create_download_link(img_buffer, 'plot.png', 'Download Time Series', file_type='image/png')
     st.markdown(img_download_url, unsafe_allow_html=True)
 
     
