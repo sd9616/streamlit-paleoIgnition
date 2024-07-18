@@ -47,28 +47,21 @@ def load_datasets():
     dataset_files_loveclm = [
         np.load(os.path.join(file_path, 'lc_rolling_avg_trimmed.npy')),
         np.load(os.path.join(file_path, 'lc_lat.npy')),
-        np.load(os.path.join(file_path, 'lc_lon.npy')),
-        np.load(os.path.join(file_path, 'lc_lightning_mm.npy')), 
-        np.load(os.path.join(file_path, 'lc_time_kaBP.npy'))
+        np.load(os.path.join(file_path, 'lc_lon.npy'))
         
     ]
 
     dataset_files_trace = [
         np.load(os.path.join(file_path, 'tr_rolling_avg_trimmed.npy')),
         np.load(os.path.join(file_path, 'tr_lat.npy')),
-        np.load(os.path.join(file_path, 'tr_lon.npy')),
-        np.load(os.path.join(file_path, 'tr_lightning_mm.npy')), 
-        np.load(os.path.join(file_path, 'tr_time_kaBP.npy'))
+        np.load(os.path.join(file_path, 'tr_lon.npy'))
         
     ]
 
     dataset_files_famous = [
         np.load(os.path.join(file_path, 'fa_rolling_avg_trimmed.npy')),
         np.load(os.path.join(file_path, 'fa_lat.npy')),
-        np.load(os.path.join(file_path, 'fa_lon.npy')),
-        np.load(os.path.join(file_path, 'fa_lightning_mm.npy')), 
-        np.load(os.path.join(file_path, 'fa_time_kaBP.npy'))
-        
+        np.load(os.path.join(file_path, 'fa_lon.npy'))
     ]
 
     time = np.load(os.path.join(file_path, 'time_rolling_21_0.4.npy'))
@@ -303,39 +296,6 @@ def plot_time_series(chosen_dataset):
     img_download_url = create_download_link(img_buffer, 'plot.png', 'Download graph', file_type='image/png')
     st.markdown(img_download_url, unsafe_allow_html=True)
 
-
-    
-#     buf = io.BytesIO()
-    
-#     if chosen_dataset == "All": 
-    
-#         csvs = plot_scrollable_series()
-#         plot_graph_time_series()
-        
-#     with zipfile.ZipFile(buf, "x") as csv_zip:
-        
-#         for filename, csv in csvs.items(): 
-#             csv_zip.writestr(filename, csv)
-        
-
-#         st.download_button(
-#             label="Download zip",
-#             data=buf.getvalue(),
-#             file_name="mydownload.zip",
-#             mime="application/zip",
-# )
-        
-        
-        
-    # with col3: 
-    
-    #     st.button("CSV")
-        
-    # with col4: 
-    #     st.button("Graph")
-        
-    
-    # col1.button()
     
 if generate: 
     plot_time_series(chosen_dataset)
