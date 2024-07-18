@@ -5,9 +5,9 @@ st.write("# Contact Info")
 
 st.markdown(
     """
-    PaleoIgnition is an app built for 
-
-    **👈 Select a demo from the dropdown on the left** to see some examples
-    of what PaleoIgnition can do!
+    Sylvia Dee (sylvia.dee@rice.edu)\n
+    Richard Vachula (rsv0005@auburn.edu)\n
+    Saloni Dalal (sd96@rice.edu)\n
+    Andrew Ondara (aoo4@rice.edu )\n
 
 """)

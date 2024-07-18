@@ -9,15 +9,16 @@ from streamlit_option_menu import option_menu
 col1, col2 = st.columns(2)
 
 with col1: 
-    st.write("# Welcome to PaleoIgnition! 👋")
-    # st.markdown(
-    #     """
-    #     PaleoIgnition is an app built for paleofire researchers to use
-    
-    #     """)
+    st.write("# Welcome to PaleoIgnition!👋")
+    st.markdown(
+        """
+        PaleoIgnition is an app built to provide paleofire practitioners with a paleolightning reconstruction for their study sites. 
+        
+        To create your own reconstruction head to the __'Lightning Plotter'__ page and enter a latitude and longitude of your choice!
+        """)
 
 with col2: 
-    st.image("paleoignition_logo_white.png", width=600)
+    st.image("paleoignition_logo_white.png", width=500)
 
 # with st.sidebar:
 #   selected = option_menu(
