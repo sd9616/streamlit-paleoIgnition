@@ -10,6 +10,9 @@ import plotly.express as px
 
 st.markdown("""
             ## Lightning Time Series Plotter
+            
+            * Generate a time series for any site/location!
+            * After hitting generate scroll to the bottom of the page to download a png of plot + CSV files containing the time series data.
             """)
 
 # Select a Dataset
