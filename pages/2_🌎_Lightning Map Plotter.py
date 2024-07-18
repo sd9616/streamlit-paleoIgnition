@@ -1,3 +1,5 @@
+import base64
+from io import BytesIO
 import os
 import numpy as np
 import streamlit as st 
@@ -114,9 +116,23 @@ def plot_a_map(chosen_dataset, time_entered):
     # Convert the plot to a Streamlit image and display it
     st.pyplot(fig)
     
-    return selected_frame
+    # Save plot to a BytesIO buffer
+    img_buffer = BytesIO()
+    plt.savefig(img_buffer, format='png')
+    img_buffer.seek(0)
+    
+    return img_buffer
 
     
+def create_download_link(file_buffer, filename, link_description, file_type='application/zip'):
+    file_buffer.seek(0)  # Ensure the buffer is at the beginning
+    b64 = base64.b64encode(file_buffer.read()).decode()
+    # return f'<a href="data:application/zip;base64,{b64}" download="{filename}.zip">{link_description}</a>'
+    return f'<a href="data:{file_type};base64,{b64}" download="{filename}">{link_description}</a>'
+
 if generate: 
-    selected_frame = plot_a_map(chosen_dataset.upper(), time_entered)
+    img_buffer = plot_a_map(chosen_dataset.upper(), time_entered)
+    
+    img_download_url = create_download_link(img_buffer, 'plot.png', 'Download map', file_type='image/png')
+    st.markdown(img_download_url, unsafe_allow_html=True)
     
