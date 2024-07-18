@@ -7,7 +7,6 @@ import numpy as np
 import os
 import pandas as pd
 import plotly.express as px
-import download_button
 
 st.markdown("""
             ## Lightning Time Series Plotter
