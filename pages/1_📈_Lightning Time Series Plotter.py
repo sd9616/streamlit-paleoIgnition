@@ -20,6 +20,7 @@ chosen_dataset = st.selectbox(
     "Pick a Dataset to plot or choose all!",
     ("TraCE", "FAMOUS", "LOVECLIM", "All"))
 
+
 # Enter lat and Lon
 lat_point = st.number_input('Latitude Point (between -90 and 90)', -90.0, 90.0, step=1e-2, format="%.5f")
 lon_point = st.number_input('Longitude Point (between 0 and 360)', 0.0, 360.0, step=1e-2, format="%.5f")
@@ -39,42 +40,56 @@ TRACE = "TRACE"
 FAMOUS = "FAMOUS"
 LOVECLIM = "LOVECLIM"
 
-
-# Returns a dictionary with each dataset constant as the key and a array of time 
-# (dataset_dict, time)
-def load_datasets(): 
-    # [variable, latitude, longitude, time]
-    dataset_files_loveclm = [
-        np.load(os.path.join(file_path, 'lc_rolling_avg_trimmed.npy')),
-        np.load(os.path.join(file_path, 'lc_lat.npy')),
-        np.load(os.path.join(file_path, 'lc_lon.npy'))
+def load_a_dataset(dataset): 
+    
+    if dataset == TRACE: 
+        dataset_short_form = "tr"
         
-    ]
-
-    dataset_files_trace = [
-        np.load(os.path.join(file_path, 'tr_rolling_avg_trimmed.npy')),
-        np.load(os.path.join(file_path, 'tr_lat.npy')),
-        np.load(os.path.join(file_path, 'tr_lon.npy'))
+    elif dataset == FAMOUS: 
+        dataset_short_form = "fa"
         
+    elif dataset == LOVECLIM: 
+        dataset_short_form = "lc"
+        
+    else: 
+        print(f"ERROR: {dataset} is not a valid option")
+        return
+    
+    dataset_files = [
+        np.load(os.path.join(file_path, f'{dataset_short_form}_rolling_avg_trimmed.npy')),
+        np.load(os.path.join(file_path, f'{dataset_short_form}_lat.npy')),
+        np.load(os.path.join(file_path, f'{dataset_short_form}_lon.npy')) 
     ]
+    
+    return dataset_files
+    
+def load_datasets(dataset):
+    dataset_files_list = {}
+    if dataset == "All": 
+        loveclim_files = load_a_dataset(LOVECLIM)
+        trace_files = load_a_dataset(TRACE)
+        famous_files = load_a_dataset(FAMOUS)
+        
+        dataset_files_list[FAMOUS] = famous_files
+        dataset_files_list[TRACE] = trace_files
+        dataset_files_list[LOVECLIM] = loveclim_files        
+        
+    if dataset == LOVECLIM: 
+        loveclim_files = load_a_dataset(LOVECLIM)
+        dataset_files_list[LOVECLIM] = loveclim_files   
 
-    dataset_files_famous = [
-        np.load(os.path.join(file_path, 'fa_rolling_avg_trimmed.npy')),
-        np.load(os.path.join(file_path, 'fa_lat.npy')),
-        np.load(os.path.join(file_path, 'fa_lon.npy'))
-    ]
+    if dataset == TRACE:   
+        trace_files = load_a_dataset(TRACE)
+        dataset_files_list[TRACE] = trace_files
+
+    if dataset == FAMOUS: 
+        famous_files = load_a_dataset(FAMOUS)
+        dataset_files_list[FAMOUS] = famous_files
 
     time = np.load(os.path.join(file_path, 'time_rolling_21_0.4.npy'))
 
-    dataset_files_list = {
-        TRACE: dataset_files_trace,
-        LOVECLIM: dataset_files_loveclm,
-        FAMOUS: dataset_files_famous,
-    }
-    
     return dataset_files_list, time
-    
-    
+       
 # Returned file buffer to convert to a CSV file
 def np_to_csv(col1_name, col1_data, col2_name, col2_data): 
     data = {f'{col1_name}': col1_data, f'{col2_name}': col2_data}
@@ -98,17 +113,15 @@ def get_selected_frame(dataset_files, lat_point, lon_point):
 
     return var[:, lat_idx, lon_idx]
     
-def plot_scrollable_series(): 
+def plot_scrollable_series(datasets, time): 
     # Plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
     data_set = []
     data_frames = []
-    datasets, time = load_datasets()
 
     csvs = {}
-    
-    
+
     # Generated the frame for each data set
     for key, dataset_files in datasets.items():
 
@@ -137,22 +150,18 @@ def plot_scrollable_series():
 
     return csvs
 
-   
-def plot_a_scrollable_series(dataset_name): 
+def plot_a_scrollable_series(dataset_name, datasets, time): 
     # Plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
     data_set = []
     data_frames = []
-    datasets, time = load_datasets()
 
     csvs = {}
     
     dataset_files = datasets[dataset_name]
     
     # Generated the frame for each data set
-    
-
     selected_frame = get_selected_frame(dataset_files, lat_point, lon_point)
     df = create_df(selected_frame, time, dataset_name)
 
@@ -177,12 +186,12 @@ def plot_a_scrollable_series(dataset_name):
 
     return csvs
 
-def plot_graph_time_series():
+def plot_graph_time_series(datasets, time):
     
     plt.figure(figsize=(10, 6))
 
     csvs = {}
-    datasets, time = load_datasets()
+    
     for key, dataset_files in datasets.items():
 
         selected_frame = get_selected_frame(dataset_files, lat_point, lon_point)
@@ -206,14 +215,25 @@ def plot_graph_time_series():
     
     # Display the plot using Streamlit
     st.pyplot(plt)
+    
 
     # Close the plot to prevent memory leaks
     plt.close()
     
     return csvs, img_buffer
 
-def plot_a_graph_time_series(dataset_name):
+def plot_a_graph_time_series(dataset_name, datasets, time):
+    """Given dataset_name, plots a static plot for a given dataset. 
     
+    Args: 
+        dataset_name: the dataset chosen by the user, in all caps
+        
+    Returns: 
+        csvs: buffer containing contents of the time series data
+        img_buffer: buffer containing contents of the image
+    """
+    
+    # Color map for time series 
     color_map = {
         "TRACE": "blue",
         "LOVECLIM": "orange",
@@ -223,10 +243,8 @@ def plot_a_graph_time_series(dataset_name):
     plt.figure(figsize=(10, 6))
 
     csvs = {}
-    datasets, time = load_datasets()
     
     dataset_files = datasets[dataset_name]
-    
 
     selected_frame = get_selected_frame(dataset_files, lat_point, lon_point)
     
@@ -237,7 +255,6 @@ def plot_a_graph_time_series(dataset_name):
 
     plt.xlabel('Time')
     plt.ylabel('Lightning')
-    
     plt.title(f'{dataset_name}: Time series of Lightning at {lat_point}, {lon_point}')
     plt.grid(True)
     plt.legend()
@@ -257,46 +274,75 @@ def plot_a_graph_time_series(dataset_name):
     return csvs, img_buffer
         
 def create_download_link(file_buffer, filename, link_description, file_type='application/zip'):
+    """Given a buffer, generates a download link for its contents. 
+    
+    Args: 
+        file_buffer: a buffer object containing the contents for the download link
+        filename: name of the file when downloaded
+        link_description: hyperlinks title when rendered on site 
+        file_type: type of file, 'application/zip' by default
+        
+    Returns: 
+        hyper-link to contents in file_buffer
+    """
     file_buffer.seek(0)  # Ensure the buffer is at the beginning
     b64 = base64.b64encode(file_buffer.read()).decode()
     # return f'<a href="data:application/zip;base64,{b64}" download="{filename}.zip">{link_description}</a>'
     return f'<a href="data:{file_type};base64,{b64}" download="{filename}">{link_description}</a>'
 
-
 def create_zip_memory(files):
+    """Given list of files, returned buffer object containing a zipped file 
+    
+    Args: 
+        files: list of files 
+    """
+    
     # Create a BytesIO buffer to hold the zip file
     buf = BytesIO()
+    
     with zipfile.ZipFile(buf, 'w') as zipf:
+        
         for filename, file_content in files.items():
+            
             # Ensure the BytesIO object is at the start
             file_content.seek(0)
+            
             # Read the content of the BytesIO object
             zipf.writestr(filename, file_content.read())
+            
     buf.seek(0)
+    
     return buf
 
 def plot_time_series(chosen_dataset): 
+    """Given the option chosen, plots a time series (scrollable and static) for all datasets or just one. 
+    Renders 'Download CSV files' link and 'Download Time Series' link. 
     
+    Args: 
+        chosen_dataset: a string that can be either of "TRACE", "FAMOUS", "LOVECLIM", "All"    
+    """
+    
+    dataset, time = load_datasets(chosen_dataset)
     if chosen_dataset == 'All': 
-
-        plot_scrollable_series()
-        csvs, img_buffer = plot_graph_time_series()
+        plot_scrollable_series(dataset, time)
+        csvs, img_buffer = plot_graph_time_series(dataset, time)
 
     else: 
+        dataset = chosen_dataset.upper()
+        plot_a_scrollable_series(dataset, dataset, time)
+        csvs, img_buffer = plot_a_graph_time_series(dataset, dataset, time)
         
-        caps_dataset = chosen_dataset.upper()
-        plot_a_scrollable_series(caps_dataset)
-        csvs, img_buffer = plot_a_graph_time_series(caps_dataset)
-        
+    # Generate zipped file with time series CSVs  
     zipped_buffer = create_zip_memory(csvs)
 
+    # Generate link to download CSVs as zipped file 
     download_url = create_download_link(zipped_buffer, 'csv files', 'Download CSV files')
     st.markdown(download_url, unsafe_allow_html=True)
 
+    # Generate link to download image of static time series plot
     img_download_url = create_download_link(img_buffer, 'plot.png', 'Download Time Series', file_type='image/png')
     st.markdown(img_download_url, unsafe_allow_html=True)
 
-    
 if generate: 
     plot_time_series(chosen_dataset)
 
