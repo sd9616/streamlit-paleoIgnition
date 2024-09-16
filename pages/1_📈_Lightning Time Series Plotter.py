@@ -25,6 +25,7 @@ chosen_dataset = st.selectbox(
 lat_point = st.number_input('Latitude Point (between -90 and 90)', -90.0, 90.0, step=1e-2, format="%.5f")
 lon_point = st.number_input('Longitude Point (between 0 and 360)', 0.0, 360.0, step=1e-2, format="%.5f")
 
+
 # Hit generate
 col1, col2, col3, col4 = st.columns([0.20, 0.65, 0.1, 0.15])
 
