@@ -5,7 +5,7 @@ import pandas as pd
 col1, col2 = st.columns(2)
 
 with col1: 
-    st.write("# Welcome to PaleoIgnition!👋")
+    st.write("# Welcome to PaleoIgnition!")
     st.markdown(
         """
         PaleoIgnition is an app built to provide paleofire practitioners with a paleolightning reconstruction for their study sites. 
