@@ -19,7 +19,7 @@ jobs:
           git config --global user.name "sd9616"
           git config --global user.email "sd96@rice.edu"
 
-          git fetch origin main
+          git pull
           
           # Make empty commit
           git commit --allow-empty -m "Keep alive: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"  
