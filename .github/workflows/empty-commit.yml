@@ -3,40 +3,27 @@ name: Keep Site Alive
 on:
   schedule:
     - cron: "0 12 * * *"  # Daily at 12:00 UTC
-  workflow_dispatch:
-
-concurrency:
-  group: keep-alive
-  cancel-in-progress: true
 
 jobs:
-  keep-alive:
+  commit: 
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: main
       
       - name: Setup Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      
-      - name: Force sync and commit
-        run: |
-          # Get latest from remote
+          git config --global user.name "sd9616"
+          git config --global user.email "sd96@rice.edu"
+
           git fetch origin main
           
-          # Check if there are any differences
-          if ! git diff --quiet HEAD origin/main; then
-            echo "Remote has changes, syncing..."
-            git merge origin/main --no-edit
-          fi
-          
           # Make empty commit
-          git commit --allow-empty -m "Keep alive: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          
-          # Push with force-with-lease for safety
-          git push --force-with-lease origin main
+          git commit --allow-empty -m "Keep alive: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"  
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}
+
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
