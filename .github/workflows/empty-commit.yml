@@ -1,48 +1,42 @@
-name: Automated Empty Commit
+name: Keep Site Alive
 
 on:
   schedule:
-    - cron: "0 12 * * *"  # Runs every day at 12:00 UTC
-  workflow_dispatch:  # Lets you run manually
+    - cron: "0 12 * * *"  # Daily at 12:00 UTC
+  workflow_dispatch:
 
-# Prevent multiple instances from running simultaneously
 concurrency:
-  group: empty-commit-workflow
-  cancel-in-progress: false
+  group: keep-alive
+  cancel-in-progress: true
 
 jobs:
-  make-empty-commit:
+  keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history to avoid issues
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: main
       
-      - name: Configure Git
+      - name: Setup Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
-      - name: Sync and create empty commit
+      - name: Force sync and commit
         run: |
-          # Ensure we're on the main branch
-          git checkout main
-          
-          # Force pull the latest changes
+          # Get latest from remote
           git fetch origin main
-          git reset --hard origin/main
           
-          # Check if we need to make a commit (avoid duplicate commits)
-          last_commit_msg=$(git log -1 --pretty=%B)
-          if [[ "$last_commit_msg" == *"Automated empty commit to keep site up"* ]]; then
-            echo "Last commit was already an automated commit, skipping..."
-            exit 0
+          # Check if there are any differences
+          if ! git diff --quiet HEAD origin/main; then
+            echo "Remote has changes, syncing..."
+            git merge origin/main --no-edit
           fi
           
-          # Create empty commit
-          git commit --allow-empty -m "Automated empty commit to keep site up: $(date -u)"
+          # Make empty commit
+          git commit --allow-empty -m "Keep alive: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
           
-          # Force push (since we reset hard, this should work)
-          git push origin main
+          # Push with force-with-lease for safety
+          git push --force-with-lease origin main
