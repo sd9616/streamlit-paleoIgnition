@@ -5,6 +5,11 @@ on:
     - cron: "0 12 * * *"  # Runs every day at 12:00 UTC
   workflow_dispatch:  # Lets you run manually
 
+# Prevent multiple instances from running simultaneously
+concurrency:
+  group: empty-commit-workflow
+  cancel-in-progress: false
+
 jobs:
   make-empty-commit:
     runs-on: ubuntu-latest
@@ -20,31 +25,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
-      - name: Pull latest changes and create empty commit
+      - name: Sync and create empty commit
         run: |
-          # Pull the latest changes first
-          git pull origin main
+          # Ensure we're on the main branch
+          git checkout main
+          
+          # Force pull the latest changes
+          git fetch origin main
+          git reset --hard origin/main
+          
+          # Check if we need to make a commit (avoid duplicate commits)
+          last_commit_msg=$(git log -1 --pretty=%B)
+          if [[ "$last_commit_msg" == *"Automated empty commit to keep site up"* ]]; then
+            echo "Last commit was already an automated commit, skipping..."
+            exit 0
+          fi
           
           # Create empty commit
           git commit --allow-empty -m "Automated empty commit to keep site up: $(date -u)"
           
-          # Push with retry logic
-          max_retries=3
-          retry_count=0
-          
-          while [ $retry_count -lt $max_retries ]; do
-            if git push origin main; then
-              echo "Push successful!"
-              break
-            else
-              echo "Push failed, retrying in 10 seconds... (attempt $((retry_count + 1))/$max_retries)"
-              sleep 10
-              git pull origin main --rebase
-              retry_count=$((retry_count + 1))
-            fi
-          done
-          
-          if [ $retry_count -eq $max_retries ]; then
-            echo "Failed to push after $max_retries attempts"
-            exit 1
-          fi
+          # Force push (since we reset hard, this should work)
+          git push origin main
