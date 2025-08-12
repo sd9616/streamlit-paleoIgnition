@@ -16,13 +16,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Sync with remote
+        run: |
+          git pull --rebase origin main
+
       - name: Create empty commit
         run: |
           git commit --allow-empty -m "Automated empty commit to keep site up: $(date -u)"
-          git push
+          git push origin main
