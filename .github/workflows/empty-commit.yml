@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0   
+          fetch-depth: 0  
 
       - name: Configure Git
         run: |
@@ -29,6 +29,5 @@ jobs:
 
       - name: Create empty commit
         run: |
-          git pull
           git commit --allow-empty -m "Automated empty commit to keep site up: $(date -u)"
           git push origin main
